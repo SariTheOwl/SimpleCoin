@@ -70,6 +70,11 @@ class Blockchain:
             self.pending_transactions.append(transaction)
         return self.show_last_block.id + 1
 
+    def updateTransactions(self, transactions):
+        for tr in transactions:
+            if self.checkTransaction(tr):
+                self.pending_transactions.append(tr)
+                
     def checkWallet(self, userID):
         owned = []
         for block in self.chain:
@@ -130,3 +135,11 @@ class Blockchain:
             if not self.validateSignature(tr['sender'], tr):
                 return False
         return True
+
+    def proof_of_work(self):
+        proof = 0
+        while self.valid_proof(self.pending_transactions, self.sumHash, proof) is False:
+            proof += 1
+
+        return proof
+        
