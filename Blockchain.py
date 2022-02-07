@@ -138,8 +138,18 @@ class Blockchain:
 
     def proof_of_work(self):
         proof = 0
-        while self.valid_proof(self.pending_transactions, self.sumHash, proof) is False:
+        while self.valid_proof(self.sumHash, proof) is False:
             proof += 1
+            return -1
 
         return proof
         
+    def valid_proof(self, last_hash, proof, difficulty=5):
+        guess = (str(last_hash) + str(proof)).encode()
+        guess_hash = hashlib.sha3_512(guess).hexdigest()
+        if guess_hash[:difficulty] == '0' * difficulty:
+            self.guess_hash = guess_hash
+            print(guess_hash)
+            return guess_hash
+        else:
+            return -1

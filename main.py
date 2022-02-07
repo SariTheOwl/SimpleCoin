@@ -1,3 +1,4 @@
+from numpy import block
 from Blockchain import Blockchain
 from Block import Block
 from User import User
@@ -21,8 +22,11 @@ users.append(User('Hubert'))
 users.append(User('Adam'))
 users.append(User('Filip'))
 
+
+flag = True
 proposed_block = None
 transaction_list = []
+proof = 0
 
 def display_blockchain():
     return json.dumps(blockchain.chain, default=Block.to_dict)
@@ -45,22 +49,18 @@ def create_block(data="", nonce=0):
 
 
 def userThread(u :User, b):
-    u.updateTransactions(transaction_list)
+    blockchain.updateTransactions(transaction_list)
     global flag
     global proposed_block
     global proof
     while flag:
-        b = u.proofofwork()
+        b = blockchain.proof_of_work()
         if b != -1:
             proof = b
             flag = False
     if b == -1:
-        if u.validateBlock(proposed_block) and u.valid_proof(transaction_list, u.bcm.sumHash, proof):
-            u.addBlock(proposed_block)
-            return print("user " + u.name +  " potwierdza")
-        else:
-            return print("bład user "  + u.name)
-    proposed_block = u.proposeBlock(b)
+            return print("bład uzytkownika "  + u.name)
+    proposed_block = blockchain.create_block(blockchain.proof_of_work())
 
 if __name__ == '__main__':
     blockchain.addUsers(users)
@@ -86,14 +86,14 @@ if __name__ == '__main__':
     blockchain.checkWallet(blockchain.users[2].identity)
     blockchain.checkWallet(blockchain.users[3].identity)
 
-    thread1 = Thread(target=userThread(), args=(users[0],-1))
-    thread2 = Thread(target=userThread(), args=(users[1],-1))
+    # thread1 = Thread(target=userThread, args=(users[0],-1,))
+    # thread2 = Thread(target=userThread, args=(users[1],-1,))
 
-    thread1.start()
-    thread2.start()
+    # thread1.start()
+    # thread2.start()
 
-    thread1.join()
-    thread2.join()
+    # thread1.join()
+    # thread2.join()
 
     random = Crypto.Random.new().read
     rsa = RSA.generate(1024, random)
